@@ -1,22 +1,40 @@
-import React, { useState } from 'react'
+import React, { useContext, useState } from 'react'
+import { UserContext } from '../userContext';
+import { Navigate } from 'react-router-dom';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 const Login = () => {
     const [username, setUsername] = useState('')
     const [password, setPassword] = useState('')
+    const [redirect, setRedirect] = useState(false)
+    const { setUserInfo } = useContext(UserContext)
     
     const doLogin = async(e)=>{
         e.preventDefault()
-        const data = JSON.stringify({username, password})
         const url = 'http://localhost:5000/login'
-        console.log(data)
-        const status = await fetch(url,{
-            method:'POST',
-            body: data,
-            headers: {'Content-Type': 'application/json'}
+        const response = await fetch(url, {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({username, password}),
+            credentials: 'include'
         })
-        console.log(status)
-        setPassword('')
-        setUsername('')
+        console.log(response)
+        if(!response.ok)toast.error('Login failed!');
+        else{
+            response.json().then((userInfo)=>{
+                toast.success('Login Successful!')
+                setUserInfo(userInfo.data)
+                // console.log(userInfo)
+                setRedirect(true)
+            })
+            
+        }
+        
+    }
+
+    if(redirect){
+        return (<Navigate to={'/'} />)
     }
     return (
         <form className="login" onSubmit={doLogin}>
@@ -40,6 +58,17 @@ const Login = () => {
                 }}
             />
             <button>Login</button>
+            <ToastContainer
+                position="top-right"
+                autoClose={5000}
+                hideProgressBar={false}
+                newestOnTop={false}
+                closeOnClick
+                rtl={false}
+                pauseOnFocusLoss
+                draggable
+                pauseOnHover
+            />
         </form>
     )
 }

@@ -1,4 +1,15 @@
 import React, { useState } from 'react'
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+
+
+const displayToast = (response) => {
+  if(response.ok === true){
+    toast.success('User registered!')
+  }else{
+    toast.error('Registration failed!');
+  }
+}
 
 const Register = () => { 
   const [data, setData] = useState({
@@ -9,12 +20,13 @@ const Register = () => {
   const register = async (e) => {
     e.preventDefault()
     const url = 'http://localhost:5000/register'
-    console.log(data)
-    await fetch(url, {
+    const response = await fetch(url, {
       method:'POST',
       headers: {'Content-Type': 'application/json'},
       body: JSON.stringify(data)
     })
+    console.log(response)
+    displayToast(response)
     setData({...data, username:'', email:'', password:''})
   }
   return (
@@ -45,6 +57,17 @@ const Register = () => {
           }} 
         />
         <button>Register</button>
+        <ToastContainer
+          position="top-right"
+          autoClose={5000}
+          hideProgressBar={false}
+          newestOnTop={false}
+          closeOnClick
+          rtl={false}
+          pauseOnFocusLoss
+          draggable
+          pauseOnHover
+        />
     </form>
   )
 }
